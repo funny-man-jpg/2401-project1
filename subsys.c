@@ -16,14 +16,17 @@ int subsys_init(Subsystem *subsystem, const char *name, char status){
 }
 
 int subsys_print(Subsystem *subsystem){
-    //COME BACK HERE TO FIX THIS SIGMA NUGGETS STYLE
-    //THIS WILL PROBABLY BREAK
     if (subsystem == NULL){
         return ERR_NULL_POINTER;
     }
 
     printf("name: %16s, ", subsystem->name);
     subsys_status_print(subsystem);
+    int data;
+    if ((subsystem->status & (1<<STATUS_DATA)) >> STATUS_DATA == 1){
+        subsys_data_get(subsystem, &data);
+        printf(", data: %08x", data);
+    }
     return ERR_SUCCESS;
 }
 
@@ -34,11 +37,6 @@ int subsys_status_set(Subsystem *subsystem, unsigned char status, unsigned char 
     if(status > STATUS_POWER || status < STATUS_RESOURCE){
         return ERR_INVALID_STATUS;
     }
-    for (int i = 0; i < 8; i++)
-    {
-        printf("%d", (subsystem->status & (1<<i)) >> i);
-    }
-    printf(" prefunction\n");
     if(status == STATUS_RESOURCE || status == STATUS_PERFORMANCE){
         switch(value){
             case 0:
@@ -77,22 +75,31 @@ int subsys_status_print(const Subsystem *subsystem){
     if(subsystem == NULL){
         return ERR_NULL_POINTER;
     }
-    for (int i = 0; i < 8; i++)
-    {
-        printf("%d", (subsystem->status & (1<<i)) >> i);
-    }
-    printf("\n");
     printf("Status: (PwR: %d", ((subsystem->status & (1<<STATUS_POWER)) >> STATUS_POWER));
     printf("|DATA: %d",((subsystem->status & (1<<STATUS_DATA)) >> STATUS_DATA));
     printf("|ACT: %d",((subsystem->status & (1<<STATUS_ACTIVITY)) >> STATUS_ACTIVITY));
     printf("|ERROR: %d",((subsystem->status & (1<<STATUS_ERROR)) >> STATUS_ERROR));
     printf("|PERF: %d",(2 * (int) (subsystem->status & (1<<STATUS_PERFORMANCE+1)) >> STATUS_PERFORMANCE+1)+(int) (subsystem->status & (1<<STATUS_PERFORMANCE)) >> STATUS_PERFORMANCE);
     printf("|RES: %d)\n",(2 * (int) (subsystem->status & (1<<STATUS_RESOURCE+1)) >> STATUS_RESOURCE+1)+(int) (subsystem->status & (1<<STATUS_RESOURCE)) >> STATUS_RESOURCE);
-    for (int i = 0; i < 8; i++)
-    {
-        printf("%d", (subsystem->status & (1<<i)) >> i);
-    }
-    printf("\n");
     return ERR_SUCCESS;
-
+}
+int subsys_data_set(Subsystem *subsystem, unsigned int new_data, unsigned int *old_data){
+    if (old_data == NULL){
+        return ERR_NULL_POINTER;
+    }else{
+        *old_data = subsystem->data;
+        subsystem->data = new_data;
+        subsys_status_set(subsystem, STATUS_DATA, 1);
+        return ERR_SUCCESS;
+    }
+}
+int subsys_data_get(Subsystem *subsystem, unsigned int *data){
+    if ((subsystem->status & (1<<STATUS_DATA)) >> STATUS_DATA == 0){
+        data = 0;
+        return ERR_NO_DATA;
+    }
+    *data = subsystem->data;
+    subsystem->data = 0;
+    subsys_status_set(subsystem, STATUS_DATA, 0);
+    return ERR_SUCCESS;
 }

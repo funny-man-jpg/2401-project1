@@ -22,6 +22,8 @@ int main() {
     int index = 0;
     int choice = -1;  
     int value = 0;
+    unsigned int data;
+    unsigned int oldData;
     SubsystemCollection subsystemCollection;
 
     char name[MAX_STR];
@@ -79,7 +81,17 @@ int main() {
                 }
                 printf("%d", error);
                 break;
-
+            case MENU_DATA:
+                printf("Enter the subsystem name, then enter the data in hex uppercase without the 0x");
+                scanf("%s %x", name, &data);
+                while(getchar() != '\n');
+                index = subsys_find(&subsystemCollection, name);
+                if (index == ERR_SYS_NOT_FOUND){
+                    printf("Subsystem not found\n");
+                    break;
+                }
+                subsys_data_set(&subsystemCollection.subsystems[index], data, &oldData);
+                printf("data updated successfully");
         }
     }
     return 0;
