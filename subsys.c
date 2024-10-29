@@ -103,3 +103,34 @@ int subsys_data_get(Subsystem *subsystem, unsigned int *data){
     subsys_status_set(subsystem, STATUS_DATA, 0);
     return ERR_SUCCESS;
 }
+int subsys_remove(SubsystemCollection *subsystems, int index){
+    if(index > subsystems->size || index < 0){
+        return ERR_INVALID_INDEX;
+    }
+    for(int i = index; i< subsystems->size;i++){
+        subsystems->subsystems[i] = subsystems->subsystems[i+1];
+    }
+    subsystems->size--;
+    return ERR_SUCCESS;
+}
+int subsys_filter(const SubsystemCollection *src, SubsystemCollection *dest, const unsigned char *filter){
+    unsigned char filt_mask = 0;
+    unsigned char wild_mask = 0;
+    for(int i = 0; i<7; i++){
+        if(filter[i]== '1'){
+            filt_mask = (filt_mask | (1<<7-i));
+        }
+        if(filter[i] == '*'){
+            wild_mask = (wild_mask | (1<<7-i));
+        }
+
+    } 
+    filt_mask = ~filt_mask;
+    wild_mask = ~wild_mask;
+    for(int j = 0; j<src->size; j++){
+        if(~((filt_mask ^ src->subsystems[j].status)||wild_mask)==0){
+            subsys_append(dest, &src->subsystems[j]);
+        } 
+    }
+    return ERR_SUCCESS;
+}

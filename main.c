@@ -22,9 +22,11 @@ int main() {
     int index = 0;
     int choice = -1;  
     int value = 0;
+    unsigned char filter = 0;
     unsigned int data;
     unsigned int oldData;
     SubsystemCollection subsystemCollection;
+    SubsystemCollection tempCollection;
 
     char name[MAX_STR];
     Subsystem subsystem;
@@ -92,6 +94,28 @@ int main() {
                 }
                 subsys_data_set(&subsystemCollection.subsystems[index], data, &oldData);
                 printf("data updated successfully");
+            case MENU_REMOVE:
+                printf("Enter the index of the subsystem you would like to remove: ");
+                scanf("%d", &index);
+                if(subsys_remove(&subsystemCollection, index)==ERR_INVALID_INDEX){
+                    printf("invalid index\n");
+                    break;
+                }
+                else{
+                    printf("subsystem removed successfully\n");
+                    break;
+                }
+            case MENU_FILTER:
+                printf("Enter a 8 character string consisting of 1, 0 or *, to filter subsystems\n");
+                scanf("%9s", filter);
+                if(strlen(filter) != 9){
+                    printf("invalid filter");
+                    break;
+                }
+                subsys_filter()
+
+
+                
         }
     }
     return 0;
