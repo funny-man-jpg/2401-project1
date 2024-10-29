@@ -21,11 +21,12 @@ int main() {
     int error = ERR_SUCCESS;
     int index = 0;
     int choice = -1;  
+    int value = 0;
     SubsystemCollection subsystemCollection;
 
     char name[MAX_STR];
     Subsystem subsystem;
-    char status = 0;
+    int status = 0;
 
     subsys_collection_init(&subsystemCollection);
 
@@ -62,6 +63,23 @@ int main() {
                 break;
             case MENU_PRINTALL:
                 subsys_collection_print(&subsystemCollection);
+                break;
+            case MENU_STATUS:
+                printf("Please input the name of the subsystem, the status you want to change (7,6,5,4,2,0), and how you want to change it (3,2,1,0): ");
+                scanf("%s %d %d", name, &status, &value);
+                while(getchar() != '\n');
+                index = subsys_find(&subsystemCollection, name);
+                if (index == ERR_SYS_NOT_FOUND){
+                    printf("Subsystem not found\n");
+                    break;
+                }
+                error = subsys_status_set(&subsystemCollection.subsystems[index], status, value);
+                if (error != ERR_SUCCESS){
+                    printf("Error");
+                }
+                printf("%d", error);
+                break;
+
         }
     }
     return 0;
