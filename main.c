@@ -22,11 +22,11 @@ int main() {
     int index = 0;
     int choice = -1;  
     int value = 0;
-    unsigned char filter = 0;
+    unsigned char filter[9] = "00000000";
     unsigned int data;
     unsigned int oldData;
     SubsystemCollection subsystemCollection;
-    SubsystemCollection tempCollection;
+    SubsystemCollection filteredCollection;
 
     char name[MAX_STR];
     Subsystem subsystem;
@@ -79,9 +79,8 @@ int main() {
                 }
                 error = subsys_status_set(&subsystemCollection.subsystems[index], status, value);
                 if (error != ERR_SUCCESS){
-                    printf("Error");
+                    printf("Error\n");
                 }
-                printf("%d", error);
                 break;
             case MENU_DATA:
                 printf("Enter the subsystem name, then enter the data in hex uppercase without the 0x");
@@ -108,14 +107,13 @@ int main() {
             case MENU_FILTER:
                 printf("Enter a 8 character string consisting of 1, 0 or *, to filter subsystems\n");
                 scanf("%9s", filter);
-                if(strlen(filter) != 9){
+                if(strlen(filter) != 8){
                     printf("invalid filter");
                     break;
                 }
-                subsys_filter()
-
-
-                
+                subsys_filter(&subsystemCollection, &filteredCollection, filter);
+                subsys_collection_print(&filteredCollection);
+                break;
         }
     }
     return 0;
